@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\cardview-v7\25.1.0\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="7f2420506110902f033406b25697cf97ee8c38b2">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-cardview-v7-25.1.0_44f3b5fc99387d1b5aa70b0e7c036b0e06749ad1\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-core-ui\24.2.1\jars\libs\internal_impl-24.2.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="867dad63c33388ff8c7644b236579355036d075f">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-24.2.1_c61cfeda73d92661bc6fa3391905d27824e3b0af\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-core-ui\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="e7f3132168957eefc46229fc32c3bd464642b71e">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-core-ui-24.2.1_923516a988ba271f618de1c1429099b160e09745\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-v4\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-v4-24.2.1_a3a89d87ef07493846a8dd2038c617172a7d52f5\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="94bc1dfb84dcc8b6f6f8f7cc726d7b2dd39c1574">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-animated-vector-drawable-24.2.1_780d32e086a36c61461ceb7b42abafb2d86c201c\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="7521486d9bfd2cd9e756e0cf75ed7d97f2ce2d3b">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-recyclerview-v7-24.2.1_21af4e5ce54033747f0fab0c380cbb734df1f0c2\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-core-utils\24.2.1\jars\libs\internal_impl-24.2.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="935a969265b2a166b2d20415423f5f6e90fe16e0">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-24.2.1_865500c704cdea725a91650a116d91ebbda3d9bb\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="43b2dba6b5a0b14527961b75329d0b90025f15ea">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-appcompat-v7-24.2.1_bd512614457d3f4a31163555813947bac66d350d\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="651c0ad782273258aa315173232ba69fb7e992a4">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_f719e3131e8f40bf3a9cd4d217df705d54d5a9f3\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="d5c731fc64c03dfe04d51134955b483551c35849">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-vector-drawable-24.2.1_d31357e4610a5d81a89384e638d611da331daefc\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-compat\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="0ecb4b595fa0f0f8018a149ace3ea6525624f94e">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-compat-24.2.1_31e59529d4efc4784722e84c9dc893e01bdc589f\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-core-utils\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="9c4c3bc902450c39ed54de170db4fb12aea20a35">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-core-utils-24.2.1_dfd0df74dc5dfc1fa3d2d48f56c739e1c39db245\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-compat\24.2.1\jars\libs\internal_impl-24.2.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="7e4389bd133359a2ff88623ff1e4ff93d6e6f780">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-24.2.1_49d01c5f40d1f941da9a1d2e7b21776455319db8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="bb55ed2f08f136c877ca3e38ea0604e7e4ed6524">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run_dd3bbb0f416b17fce280b7fa490abb94c03eb2d4\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\design\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="e03f47f3d1017a093bb3239d4ec47c3447f40744">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-design-24.2.1_37852f85f9abf765d0275e096dec7fec3824d540\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-media-compat\24.2.1\jars\libs\internal_impl-24.2.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="fbf8da429efd5ad21e02e3e5ecaa1efc4167878d">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-24.2.1_11f3ff91815ede946ceb10d00db3f76757af537e\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-fragment\24.2.1\jars\libs\internal_impl-24.2.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="5f64d657e838e8375135c0f6057a7ff8fab6a50e">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\internal_impl-24.2.1_30d21dc453935d9c160f5e4aff025807ed9e16fd\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-fragment\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="b9a1ac78ad7ef3abedc4a4b30cd92bcacb939d1f">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-fragment-24.2.1_588780db751476ba5745bf6ba5c00ecc258a254f\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\exploded-aar\com.android.support\support-media-compat\24.2.1\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="09b462bbcb77650284bd6614f1a32f360ef369f8">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.android.support-support-media-compat-24.2.1_921343d6a91d7e41c4da5d93b268c6f95986342a\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Manuka\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\25.1.0\support-annotations-25.1.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="24.0.3"
+        sha1="64cb6b229a8bdfd907bc8dd46839a0053e4c018d">
+        <dex dex="C:\Users\Manuka\AndroidStudioProjects\MedPhil\app\build\intermediates\transforms\dex\debug\folders\1000\10\support-annotations-25.1.0_d77713149465538806d93c84d48a6d209942745e\classes.dex" />
+    </item>
+
+</items>

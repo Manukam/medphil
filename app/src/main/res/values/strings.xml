@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">MedPhil</string>
+    <string name="next">Next</string>
+    <string name="welcome_to_medphil_app">Welcome to MedPhil App</string>
+    <string name="title_activity_home">Home</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_main2">Main2Activity</string>
+</resources>
