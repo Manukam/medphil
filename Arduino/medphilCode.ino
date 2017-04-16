@@ -28,7 +28,6 @@ int delayMins = 0;
 int notifyTime = 2000; // time taken for a single notification
 int notifyIterations = 4; // number of times notified with the single pattern 2
 long delayTime = 0;
-//delayTime = dosageGap - (notifyTime * notifyIterations);
 
 // user related variables
 String patientUserName;
@@ -39,10 +38,9 @@ String dosageStatus = "NOT_TAKEN";
 String bottleId = "1"; // this is uniqe for each bottle
 String username = "";
 String medicine = "";
-// change to 10000
+
 long dosageGap = 10000;
 long notifyDuration = 0;
-// changed from 0
 long fillupDosage = 5;
 
 // n-th dosage
