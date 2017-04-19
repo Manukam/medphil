@@ -28,6 +28,7 @@ int delayMins = 0;
 int notifyTime = 2000; // time taken for a single notification
 int notifyIterations = 4; // number of times notified with the single pattern 2
 long delayTime = 0;
+//delayTime = dosageGap - (notifyTime * notifyIterations);
 
 // user related variables
 String patientUserName;
@@ -38,9 +39,10 @@ String dosageStatus = "NOT_TAKEN";
 String bottleId = "1"; // this is uniqe for each bottle
 String username = "";
 String medicine = "";
-
-long dosageGap = 10000;
+// change to 10000
+long dosageGap = 0;
 long notifyDuration = 0;
+// changed from 0
 long fillupDosage = 5;
 
 // n-th dosage
@@ -62,13 +64,13 @@ byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 // Enter the IP address for Arduino, as mentioned we will use 192.168.0.16
 // Be careful to use , insetead of . when you enter the address here
-IPAddress ip(192, 168, 8, 16); ///////// MIGHT GO WRONG HERE
+IPAddress ip(192, 168, 1, 16); ///////// MIGHT GO WRONG HERE
 
 // if you don't want to use DNS (and reduce your sketch size)
 // use the numeric IP instead of the name for the server:
 //char server[] = "projects.flowingdata.com";
 //char server[] = "medphil.000webhostapp.com";
-char server[] = "192.168.8.100";
+char server[] = "192.168.1.103";
 
 // txt file's available location
 String dataLocation = "/MedPhil/userConfig.txt HTTP/1.1";
@@ -141,7 +143,7 @@ void setup() {
 
     // make HTTP GET request to dataLocation:
     client.println("GET " + dataLocation);
-    client.println("Host: 192.168.8.100");
+    client.println("Host: 192.168.1.103");
     client.println();
 
   }
@@ -297,7 +299,7 @@ void loop() {
         client.print("&dosageStatus="); // This
         client.print(dosageStatus);
         client.println(" HTTP/1.1"); // Part of the GET request
-        client.println("Host: 192.168.8.100"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
+        client.println("Host: 192.168.1.103"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
         client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
         client.println(); // Empty line
         client.println(); // Empty line
@@ -342,7 +344,7 @@ void loop() {
         client.print("&dosageStatus="); // This
         client.print(dosageStatus);
         client.println(" HTTP/1.1"); // Part of the GET request
-        client.println("Host: 192.168.8.100"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
+        client.println("Host: 192.168.1.103"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
         client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
         client.println(); // Empty line
         client.println(); // Empty line
@@ -404,7 +406,7 @@ void loop() {
           client.print("&dosageStatus="); // This
           client.print(dosageStatus);
           client.println(" HTTP/1.1"); // Part of the GET request
-          client.println("Host: 192.168.8.100"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
+          client.println("Host: 192.168.1.103"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
           client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
           client.println(); // Empty line
           client.println(); // Empty line
@@ -518,7 +520,7 @@ void connectToServer() {
 
     // make HTTP GET request to dataLocation:
     client.println("GET " + dataLocation);
-    client.println("Host: 192.168.8.100");
+    client.println("Host: 192.168.1.103");
     client.println();
   }
 }
@@ -533,6 +535,10 @@ float strToFloat(String str) {
   str.toCharArray(carray, sizeof(carray)); // put str into an array
   return atof(carray);
 }
+
+
+
+
 
 
 
