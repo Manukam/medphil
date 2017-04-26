@@ -1,0 +1,7 @@
+<1>senthu16 Panadol 20000 4 5 </1>
+<2>luxy45 Piriton 3600 4 5 </2>
+<3>bala20 panadol 3600 4 5 </3>
+<5>priya Panadol 3600 4 5 </5>
+<8>david Panadol 3600 4 5 </8>
+<2>sahana45 Panadol 3600 4 5 </2>
+<0>cdn xs 0 0 0 </0>
