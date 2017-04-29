@@ -1,98 +1,110 @@
 #include <Arduino.h>
 
 /*
-  Simple Web Data Client
+  MedPhil : Smart Pill holder
 
-  This sketch connects to a website using an Arduino Wiznet Ethernet shield,
-  downloads a simple dataset, and does some LED fades based on the data.
+  This sketch connects to a server using Arduino Ethernet shield,
+  reads dataset from a txt file,  does LED notifications based on the read data,
+  determines write dataset with Ultrasonic sensor,  and writes to the database.
+
+  Dosage taken status detected on Lid open
+  Dosage not taken status detected at the end of dosage, when no lid opening has occured
 
   Circuit:
-   Ethernet shield attached to pins 10, 11, 12, 13
+   Ethernet shield attached to pins 10, 11, 12, 13 to Arduino Uno
+   RGB LED attached to pins 3,4,5 (r,g,b respectively)
+   Ultrasonic (HC SR04) sensor attached on pins 6,7 (trig & echo respectively)
+   Toggle switch attached to pin 2 (for backup)
+   Other Components :
+    10 KOhm Resistor
 
-  created december 2014
-  by Nathan Yau, based on work by David A. Mellis, Tom Igoe, and Adrian McEwen
+  created on December 2016
+  by Senthuran Ambalavanar
 
-  This example code is in the public domain.
 */
 
 #include <SPI.h>
 #include <Ethernet.h>
 
+// define connected pins //////////////////////////////////////////////////
+
 // RGB LED
-int redPin = 6;
-int greenPin = 5;
-int bluePin = 4;
+int redPin = 3;
+int greenPin = 4;
+int bluePin = 5;
 
-// dosage gap
-int delayMins = 0;
-int notifyTime = 2000; // time taken for a single notification
-int notifyIterations = 4; // number of times notified with the single pattern 2
+// HCSR04 sensor
+int trigPin = 6;
+int echoPin = 7;
+
+//////////////////////////////////////////////////////////////////////////
+
+// dosage & iteration related variables
+int notifyTime = 2000; // time taken for a single notification (Fixed for this pattern)
+int notifyIterations = 4; // number of times notified with the pattern
 long delayTime = 0;
-//delayTime = dosageGap - (notifyTime * notifyIterations);
 
-// user related variables
+// user related variables (in arduino code scope)
 String patientUserName;
 String medicineName;
 String dosageStatus = "NOT_TAKEN";
 
-// bottle values
+
+// bottle related values (medicine details)(read from file)
 String bottleId = "1"; // this is uniqe for each bottle
 String username = "";
 String medicine = "";
-// change to 10000
-long dosageGap = 0;
+long dosageGap = 20000;
 long notifyDuration = 0;
-// changed from 0
 long fillupDosage = 5;
 
-// n-th dosage
+// no of current dosage
 long dosage = 1;
 
+// dosage iterations (within a dosage)
 long dosageIteration = 1; // each dosage will have iterations within that
 long dosageIterationMax = dosageGap; // iterations within dosage is upto dosageGap
 
 // button states
-int btnLastState = 0;
-int btnCurrentState = 0;
+//int btnLastState = 0;
+//int btnCurrentState = 0;
+
+// sensor measured distances
+long lastDistance = 0;
+long currentDistance = 0;
 
 // status of writability to the database
 boolean dbWritable = true;
 
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
+// MAC address for the Ethernet Shield
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
-// Enter the IP address for Arduino, as mentioned we will use 192.168.0.16
-// Be careful to use , insetead of . when you enter the address here
-IPAddress ip(192, 168, 1, 16); ///////// MIGHT GO WRONG HERE
+// IP address for Arduino
+// takes up an un unsed IP address in the same subnet of computer's IP address
+IPAddress ip(192, 168, 1, 16);
 
-// if you don't want to use DNS (and reduce your sketch size)
-// use the numeric IP instead of the name for the server:
-//char server[] = "projects.flowingdata.com";
-//char server[] = "medphil.000webhostapp.com";
+// server address where the files are hosted
+// for localhost : use IP address of computer
+// otherwise use the site name
 char server[] = "192.168.1.103";
+//char server[] = "medphil.000webhostapp.com";
 
-// txt file's available location
+// txt file's available location within the server
+// comes after htdocs (or www or public_html) folder
 String dataLocation = "/MedPhil/userConfig.txt HTTP/1.1";
-//String dataLocation = "/test/users.txt HTTP/1.1";
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
-// that you want to connect to (port 80 is default for HTTP):
+// that is used to connect to (port 80 is default for HTTP)
 EthernetClient client;
 
-
-String currentLine = "";            // string for incoming serial data
+// file reading related variables
+String currentLine = ""; // string for incoming serial data
 String currentData = "";
-boolean readingRates = false;       // is reading?
-const int requestInterval = 600000; // milliseconds delay between requests
-
-boolean requested;                  // whether you've made a request since connecting
-long lastAttemptTime = 0;           // last time you connected to the server, in milliseconds
-
+boolean readingRates = false; // is reading?
 
 // assigned during reading
-String justRates;
+String bottleInfo;
 int firstSpaceIndex;
 String subString2;
 int secondSpaceIndex;
@@ -104,56 +116,42 @@ int fourthSpaceIndex;
 String notify_duration;
 String fillup_dosage;
 
-int switchValue;
+// switch status when detected
+//int switchValue;
 
 
 void setup() {
 
-  // switch
-  pinMode(2, INPUT);
+  // pinmode input & output configurations
+  //pinMode(2, INPUT); // switch
+  pinMode(3, OUTPUT); // LED
+  pinMode(4, OUTPUT); // LED
+  pinMode(5, OUTPUT); // LED
+  pinMode(trigPin, OUTPUT); // ultrasonic sensor : trig
+  pinMode(echoPin, INPUT); // ultrasonic sensor : echo
 
-  // set initial state
-  // read switch value
-  switchValue = digitalRead(2);
-  if ( switchValue == 1) {
-    btnLastState = 1;
-    btnCurrentState = 1;
-  } else {
-    btnLastState = 0;
-    btnCurrentState = 0;
-  }
-
-  // Open serial communications and wait for port to open:
+  // Open serial communications
   Serial.begin(9600);
 
   // start the Ethernet connection
-  Ethernet.begin(mac, ip); ////// CAN GO WRONG HERE
+  Ethernet.begin(mac, ip);
 
-  // hi message
+  // measure distance (at beginning)
+  currentDistance = lastDistance = measure();
+
   Serial.println("---------------------------");
   Serial.println("MedPhil : Smart Pill Holder");
   Serial.println("---------------------------");
 
   // connect to server
-
-  Serial.println("connecting to server...");
-
-  if (client.connect(server, 80)) {
-    Serial.println("making HTTP request...");
-
-    // make HTTP GET request to dataLocation:
-    client.println("GET " + dataLocation);
-    client.println("Host: 192.168.1.103");
-    client.println();
-
-  }
+  connectToServer(server, dataLocation);
 
 }
 
 
 void loop() {
 
-  // read data ********************************************************************************
+  // read data ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Checking for new data
   if (client.connected()) {
@@ -182,13 +180,13 @@ void loop() {
           readingRates = false;
 
           // line with values is read
-          justRates = currentData.substring(0, currentData.length() - (bottleIdLength + 3));
+          bottleInfo = currentData.substring(0, currentData.length() - (bottleIdLength + 3));
 
           // elements are split and assigned
-          int firstSpaceIndex = justRates.indexOf(" ");
-          username = justRates.substring(0, firstSpaceIndex); // assigning user name
+          int firstSpaceIndex = bottleInfo.indexOf(" ");
+          username = bottleInfo.substring(0, firstSpaceIndex); // assigning user name
 
-          subString2 = justRates.substring(firstSpaceIndex + 1);
+          subString2 = bottleInfo.substring(firstSpaceIndex + 1);
           secondSpaceIndex = subString2.indexOf(" ");
           medicine = subString2.substring(0, secondSpaceIndex); // assigning medicine name
 
@@ -224,15 +222,16 @@ void loop() {
         }
       }
     }
-
-
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // ******************************************************************************************
+  //readData();
 
   // check iteration no within dosage
   if (dosageIteration == 1) {
+
+    Serial.println("");
 
     Serial.print("Dosage : ");
     Serial.println(dosage);
@@ -240,124 +239,84 @@ void loop() {
     // first ever iteration within dosage
     /*
        reset dbWritable to true
-       set initial switch value within dosage
-       read medicine details
-       notification will be given
-       at the end of notification
-       check for button toggle
+       measure distance
+       give notification
+       check for lid open
 
     */
 
     // writable to the database at the beginning of each iteration
     dbWritable = true;
 
-    // set initial switch value within dosage
-    switchValue = digitalRead(2);
-    if ( switchValue == 1) {
-      btnCurrentState = 1;
-      btnLastState = 1;
-    } else {
-      btnCurrentState = 0;
-      btnLastState = 0;
-    }
+    // measure distance (at beginning)
+    currentDistance = lastDistance = measure();
 
-    // read medicine details ////////////////////////////////////////////////////////////////////////
-
-
-
-
-    // end of read medicine details /////////////////////////////////////////////////////////////
+    Serial.print("Measured Distance (dosageIteration 1) : ");
+    Serial.println(currentDistance);
 
     // give notifications
     for (int i = 0; i < notifyIterations ; i++) {
-      notify(fillupDosage);
+
+      notify(currentDistance);
+
     }
     Serial.print("\n");
 
-    // check for button toggle (* dbWritable is true anyhow)
-    // read switch state
-    switchValue = digitalRead(2);
-    if ( switchValue == 1) {
-      btnCurrentState = 1;
-    } else {
-      btnCurrentState = 0;
-    }
+    // possible lid open after notification
+    // measure distance & compare with the last measured distance
 
-    // check for toggle
-    if (btnCurrentState != btnLastState) {
-      // switch is toggled
+
+    /*
+    // measure distance
+    currentDistance = measure();
+
+    // print and test
+    //    Serial.print("Last Distance : ");
+    //    Serial.println(lastDistance);
+    //    Serial.print("Measured Distance : ");
+    //    Serial.println(currentDistance);
+
+    //if ((currentDistance != lastDistance) && (currentDistance != 0) && (lastDistance != 0)) {*/
+    // possible +or- 1 in distance
+    if ((!((currentDistance <= lastDistance + 1) && (currentDistance >= lastDistance - 3))) && (currentDistance != 0) && (lastDistance != 0) && (currentDistance > lastDistance)) {
+
+      Serial.print("CurrentDistance : ");
+      Serial.println(currentDistance);
+      Serial.print("LastDistance : ");
+      Serial.println(lastDistance);
+
+      // lid open detected
       dbWritable = false;
       dosageStatus = "TAKEN";
+      writeToDatabase(server, patientUserName, medicineName, dosageStatus);
 
-      // Connect to the server (your computer or web page)
-      if (client.connect(server, 80)) {
-        client.print("GET /MedPhil/write_data.php?"); // This
-        client.print("patientUserName="); // This
-        client.print(patientUserName); // And this is what we did in the testing section above. We are making a GET request just like we would from our browser but now with live data from the sensor
-        client.print("&medicineName="); // This
-        client.print(medicineName);
-        client.print("&dosageStatus="); // This
-        client.print(dosageStatus);
-        client.println(" HTTP/1.1"); // Part of the GET request
-        client.println("Host: 192.168.1.103"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
-        client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
-        client.println(); // Empty line
-        client.println(); // Empty line
-        client.stop();    // Closing connection to server after writing
-        Serial.println("TAKEN Detected- Successfully Uploaded");
-
-      }
-      else {
-        // If Arduino can't connect to the server (your computer or web page)
-        Serial.println("--> TAKEN Detected- connection failed\n");
-      }
-
-      //Serial.println("TAKEN");
-    }
+    }/*
+    */
 
 
     // ready for next iteration within dosage
     dosageIteration += (notifyTime * notifyIterations);
 
   } else if (dosageIteration == dosageIterationMax) {
+
+    Serial.println("Last Iteration");
+
     // last ever iteration within dosage
     /*
        the last millisecond of dosage
-       no need to check for button toggle
+       no need to check for lid open
        if dbWritable==true
-       no button toggle has occured
+       no lid opening has occured
        upload status "Not Taken"
        reset dosageIteration to 1 (ready for next dosage)
     */
 
     if (dbWritable) {
-      // no button toggle has occured
+
+      // no lid opening has been occured
       dosageStatus = "NOT_TAKEN";
+      writeToDatabase(server, patientUserName, medicineName, dosageStatus);
 
-      // Connect to the server (your computer or web page)
-      if (client.connect(server, 80)) {
-        client.print("GET /MedPhil/write_data.php?"); // This
-        client.print("patientUserName="); // This
-        client.print(patientUserName); // And this is what we did in the testing section above. We are making a GET request just like we would from our browser but now with live data from the sensor
-        client.print("&medicineName="); // This
-        client.print(medicineName);
-        client.print("&dosageStatus="); // This
-        client.print(dosageStatus);
-        client.println(" HTTP/1.1"); // Part of the GET request
-        client.println("Host: 192.168.1.103"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
-        client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
-        client.println(); // Empty line
-        client.println(); // Empty line
-        client.stop();    // Closing connection to server after writing
-        Serial.println("NOT TAKEN - Successfully Uploaded");
-
-      }
-      else {
-        // If Arduino can't connect to the server (your computer or web page)
-        Serial.println("--> NOT TAKEN - connection failed\n");
-      }
-
-      //Serial.println("NOT TAKEN");
     }
 
     // get ready for next dosage : dosageIteration
@@ -371,148 +330,236 @@ void loop() {
     delay(1);
 
   } else {
+
     // iteration other than first or last
     /*
        if dbWritable == true
-       if switch toggle occurs
-       status : taken
-       upload
+       if lid opening occurs
+       upload status "Taken"
     */
 
     if (dbWritable) {
-      // no button toggle has occured
 
-      // read switch state
-      switchValue = digitalRead(2);
-      if ( switchValue == 1) {
-        btnCurrentState = 1;
-      } else {
-        btnCurrentState = 0;
-      }
+      // no lid opening has been occured yet
 
-      // check for toggle
-      if (btnCurrentState != btnLastState) {
-        // switch is toggled
+      // measure distance
+      currentDistance = measure();
+
+      // print and test
+      //      Serial.print("Last Distance : ");
+      //      Serial.println(lastDistance);
+      //      Serial.print("Measured Distance : ");
+      //      Serial.println(currentDistance);
+
+      //if ((currentDistance != lastDistance) && (currentDistance != 0) && (lastDistance != 0)) {
+      // possible +or- 1 in distance
+      if ((!((currentDistance <= lastDistance + 1) && (currentDistance >= lastDistance - 3))) && (currentDistance != 0) && (lastDistance != 0) && (currentDistance > lastDistance)) {
+
+        Serial.print("CurrentDistance : ");
+        Serial.println(currentDistance);
+        Serial.print("LastDistance : ");
+        Serial.println(lastDistance);
+
+        // lid open detected
         dbWritable = false;
         dosageStatus = "TAKEN";
 
-        // Connect to the server (your computer or web page)
-        if (client.connect(server, 80)) {
-          client.print("GET /MedPhil/write_data.php?"); // This
-          client.print("patientUserName="); // This
-          client.print(patientUserName); // And this is what we did in the testing section above. We are making a GET request just like we would from our browser but now with live data from the sensor
-          client.print("&medicineName="); // This
-          client.print(medicineName);
-          client.print("&dosageStatus="); // This
-          client.print(dosageStatus);
-          client.println(" HTTP/1.1"); // Part of the GET request
-          client.println("Host: 192.168.1.103"); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
-          client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
-          client.println(); // Empty line
-          client.println(); // Empty line
-          client.stop();    // Closing connection to server after writing
-          Serial.println("TAKEN Detected- Successfully Uploaded");
-
-        }
-        else {
-          // If Arduino can't connect to the server (your computer or web page)
-          Serial.println("--> TAKEN Detected- connection failed\n");
-        }
-
-        //Serial.println("TAKEN");
+        setLightColor(0, 255, 0);
+        writeToDatabase(server, patientUserName, medicineName, dosageStatus);
+        
       }
-
 
     }
 
     // ready for next iteration within dosage
     dosageIteration++;
 
+    setLightColor(0, 0, 0);
+
     // delay 1 millisecond
     delay(1);
+
   }
+}
 
 
+/**
+   dosage notification
+*/
+void notify(int currentDistance) {
+
+  // old condition : user given value is compared
+  //  if (dosage < fillUpDosage - 1) {
+
+  // check for measured distance
+  if (currentDistance < 4) {
+
+    // measured height is less
+    // enough pills remaining
+
+    fullReminder();
+    Serial.print("NOTIFY ");
+
+  } else {
+
+    // measured height is big
+    // not enough pills remaining
+
+    fullWarn();
+    Serial.print("ALERT ");
+
+  }
 
 }
 
 
 
 /**
+   full reminder to take pills
+   before pill shortage occurs
+*/
+void fullReminder() {
+
+  // total duration : 2 seconds (2000)
+
+  for (int i = 0 ; i < 4 ; i++) {
+    singleReminder();
+  }
+
+  delay(1200);
+}
+
+
+/**
+   full reminder with warning
+   when pill shortage occurs
+*/
+void fullWarn() {
+  // total duration : 2 seconds (2000)
+
+  for (int i = 0 ; i < 4 ; i++) {
+    singleReminder();
+  }
+
+  for (int i = 0 ; i < 3 ; i++) {
+    singleWarn();
+  }
+
+}
+
+/**
+   single reminder to take pills
+   before pill shortage occurs
+*/
+void singleReminder() {
+  // blue LED blink
+  setLightColor(0, 0, 255);
+  delay(100);
+  setLightColor(0, 0, 0);
+  delay(100);
+}
+
+/**
+   single warn
+   when pill shortage is met
+*/
+void singleWarn() {
+  // red LED blink
+  setLightColor(255, 0, 0);
+  delay(100);
+  setLightColor(0, 0, 0);
+  delay(300);
+}
+
+/**
    sets color of the light
 */
-void setLightColor(int blue, int green, int red)
-{
+void setLightColor(int red, int green, int blue) {
   analogWrite(redPin, red);
   analogWrite(greenPin, green);
   analogWrite(bluePin, blue);
 }
 
 /**
-   reminder notification
+  reads data from text file
 */
-void notify(int fillUpDosage) {
-  if (dosage < fillUpDosage-1) {
-    lightNotify();
-    Serial.print("NOTIFY ");
-  } else {
-    lowWarning();
-    Serial.print("ALERT ");
-  }
+void readData() {
+  // Checking for new data
+  if (client.connected()) {
+    if (client.available()) {
+      // read incoming bytes:
+      char inChar = client.read();
 
+      // add incoming byte to end of line:
+      currentLine += inChar;
+
+      // if you get a newline, clear the line:
+      if (inChar == '\n') {
+        currentLine = "";
+      }
+
+      // get length of bottle id (may be in two or more digits)
+      int bottleIdLength = bottleId.length();
+
+      // finding the appropriate line with bottle's details
+      if (currentLine.endsWith("<" + bottleId + ">")) {
+        readingRates = true; // set readable to true
+      } else if (readingRates) {
+        if (!currentLine.endsWith("</" + bottleId + ">")) { //'>' is the ending character
+          currentData += inChar;
+        } else {
+          readingRates = false;
+
+          // line with values is read
+          bottleInfo = currentData.substring(0, currentData.length() - (bottleIdLength + 3));
+
+          // elements are split and assigned
+          int firstSpaceIndex = bottleInfo.indexOf(" ");
+          username = bottleInfo.substring(0, firstSpaceIndex); // assigning user name
+
+          subString2 = bottleInfo.substring(firstSpaceIndex + 1);
+          secondSpaceIndex = subString2.indexOf(" ");
+          medicine = subString2.substring(0, secondSpaceIndex); // assigning medicine name
+
+          subString3 = subString2.substring(secondSpaceIndex + 1);
+          thirdSpaceIndex = subString3.indexOf(" ");
+          dosage_gap = subString3.substring(0, thirdSpaceIndex);
+          dosageGap = dosage_gap.toInt(); // assigning dosageGap
+          dosageIterationMax = dosageGap; // assigning maximum iterations within a dosage
+
+          subString4 = subString3.substring(thirdSpaceIndex + 1);
+          fourthSpaceIndex = subString4.indexOf(" ");
+          notify_duration = subString4.substring(0, fourthSpaceIndex);
+          notifyDuration = notify_duration.toInt(); // assigning notify duration
+
+          fillup_dosage = subString4.substring(fourthSpaceIndex + 1);
+          fillupDosage = fillup_dosage.toInt(); // assigning fill up dosage
+
+          // assign to variables that are going to be used when writing
+          patientUserName = username;
+          medicineName = medicine;
+          notifyIterations = notifyDuration;
+
+          delayTime = dosageGap - (notifyTime * notifyIterations);
+
+          client.stop(); // reading over
+
+
+          // Reset for next reading
+          currentData = "";
+
+          Serial.println(">>> Reading Successful");
+
+        }
+      }
+    }
+  }
 }
-
-/**
-   low capacity warning
-*/
-void lowWarning() {
-  // total duration : 2 seconds (2000)
-  for (int i = 0 ; i < 4 ; i++) {
-    //setLightColor(25, 186, 170);
-    setLightColor(0, 150, 255);
-    //setLightColor(0, 0, 255);
-    //setLightColor(i*100, i*100,0);
-    delay(100);
-    setLightColor(0, 0, 0);
-    delay(100);
-  }
-  //delay(1830);
-
-  for (int i = 0 ; i < 3 ; i++) {
-
-    setLightColor(255, 0, 0);
-    delay(100);
-    setLightColor(0, 0, 0);
-    delay(300);
-  }
-
-
-
-}
-
-/**
-   blink lights for notification
-*/
-void lightNotify() {
-  // total duration : 2 seconds (2000)
-  for (int i = 0 ; i < 4 ; i++) {
-    //setLightColor(25, 186, 170);
-    setLightColor(0, 150, 255);
-    //setLightColor(0, 0, 255);
-    //setLightColor(i*100, i*100,0);
-    delay(100);
-    setLightColor(0, 0, 0);
-    delay(100);
-  }
-  //delay(1830);
-  delay(1200);
-}
-
 
 /**
    connects to server
 */
-void connectToServer() {
+void connectToServer(char server[], String dataLocation) {
   // attempt to connect, and wait a millisecond:
   Serial.println("connecting to server...");
   if (client.connect(server, 80)) {
@@ -520,7 +567,9 @@ void connectToServer() {
 
     // make HTTP GET request to dataLocation:
     client.println("GET " + dataLocation);
-    client.println("Host: 192.168.1.103");
+
+    client.print("Host: ");
+    client.println(server);
     client.println();
   }
 }
@@ -537,10 +586,67 @@ float strToFloat(String str) {
 }
 
 
+/**
+   returns distance, measured with HCSR04 sensor
+*/
+long sonarSensor(int trigPin, int echoPin) {
+  digitalWrite(trigPin, LOW);
+  //delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  //delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  long distance = (duration / 2) / 29.1;
+  //currentDistance = distance;
+  return distance;
+}
+
+/**
+   executes sonarSensor measurement & return measured value
+*/
+long measure() {
+  return sonarSensor(trigPin, echoPin);
+}
 
 
+/**
+   writes dosage status to the database
+*/
+void writeToDatabase(char server[], String patientUserName, String medicineName, String dosageStatus) {
 
+  if (client.connect(server, 80)) {
+    // arduino connects to the server
 
+    client.print("GET /MedPhil/write_data.php?"); // This
+    client.print("patientUserName="); // This
+    client.print(patientUserName); // And this is what we did in the testing section above. We are making a GET request just like we would from our browser but now with live data from the sensor
+    client.print("&medicineName="); // This
+    client.print(medicineName);
+    client.print("&dosageStatus="); // This
+    client.print(dosageStatus);
+    client.println(" HTTP/1.1"); // Part of the GET request
+    client.print("Host: "); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
+    client.println(server);
+    client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
+    client.println(); // Empty line
+    client.println(); // Empty line
+    client.stop();    // Closing connection to server after writing
 
+    // show status in serial monitor
+    if (dosageStatus.equals("TAKEN")) {
+      Serial.println("TAKEN Detected - Successfully Uploaded");
+    } else {
+      Serial.println("NOT_TAKEN - Successfully Uploaded");
+    }
 
+  } else {
+    // arduino can't connect to the server
 
+    // show status in serial monitor
+    if (dosageStatus.equals("TAKEN")) {
+      Serial.println("--> TAKEN Detected - Uploading failed");
+    } else {
+      Serial.println("--> NOT_TAKEN - Uploading failed");
+    }
+  }// end if
+}
