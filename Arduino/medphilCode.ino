@@ -52,7 +52,7 @@ String dosageStatus = "NOT_TAKEN";
 
 // bottle related values (medicine details)(read from file)
 String bottleId = "1"; // this is uniqe for each bottle
-String username = "";
+String username = "senthu16";
 String medicine = "";
 long dosageGap = 20000;
 long notifyDuration = 0;
@@ -86,17 +86,19 @@ IPAddress ip(192, 168, 1, 16);
 // server address where the files are hosted
 // for localhost : use IP address of computer
 // otherwise use the site name
-char server[] = "192.168.1.103";
-//char server[] = "medphil.000webhostapp.com";
+// char server[] = "192.168.1.100";
+char server[] = "medphil.xyz";
 
 // txt file's available location within the server
 // comes after htdocs (or www or public_html) folder
-String dataLocation = "/MedPhil/userConfig.txt HTTP/1.1";
+// String dataLocation = "/MedPhil/userConfig.txt HTTP/1.1";
+String dataLocation = "/userConfig.txt HTTP/1.1";
 
 // Initialize the Ethernet client library
 // with the IP address and port of the server
 // that is used to connect to (port 80 is default for HTTP)
 EthernetClient client;
+
 
 // file reading related variables
 String currentLine = ""; // string for incoming serial data
@@ -218,11 +220,15 @@ void loop() {
           currentData = "";
 
           Serial.println(">>> Reading Successful");
+          
+          Serial.println("username : "+username);
 
         }
       }
     }
   }
+  patientUserName="senthu16";
+  medicineName="Panadol";
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -314,8 +320,8 @@ void loop() {
     if (dbWritable) {
 
       // no lid opening has been occured
-      dosageStatus = "NOT_TAKEN";
-      writeToDatabase(server, patientUserName, medicineName, dosageStatus);
+      //dosageStatus = "NOT_TAKEN";
+      writeToDatabase(server, patientUserName, medicineName, "NOT_TAKEN");
 
     }
 
@@ -362,10 +368,10 @@ void loop() {
 
         // lid open detected
         dbWritable = false;
-        dosageStatus = "TAKEN";
+        //dosageStatus = "TAKEN";
 
         setLightColor(0, 255, 0);
-        writeToDatabase(server, patientUserName, medicineName, dosageStatus);
+        writeToDatabase(server, patientUserName, medicineName, "TAKEN");
         
       }
 
@@ -614,23 +620,36 @@ long measure() {
 */
 void writeToDatabase(char server[], String patientUserName, String medicineName, String dosageStatus) {
 
-  if (client.connect(server, 80)) {
+  Serial.println("WritetoDB");
+  Serial.println("UName : "+ patientUserName);
+  Serial.println("medic : "+ medicineName);
+  Serial.println("status : "+ dosageStatus);
+
+// AFRA'S ROUTER
+  
+  if (client.connect("192.168.1.100", 80)) {
     // arduino connects to the server
 
-    client.print("GET /MedPhil/write_data.php?"); // This
-    client.print("patientUserName="); // This
+    Serial.println("Client Connected");
+
+    client.print("GET /MedPhil2/firebaseTest.php?"); // This
+    client.print("username="); // This
     client.print(patientUserName); // And this is what we did in the testing section above. We are making a GET request just like we would from our browser but now with live data from the sensor
-    client.print("&medicineName="); // This
+    //client.print("senthu16"); // And this is what we did in the testing section above. We are making a GET request just like we would from our browser but now with live data from the sensor
+    client.print("&medicine="); // This
     client.print(medicineName);
-    client.print("&dosageStatus="); // This
+    client.print("&status="); // This
     client.print(dosageStatus);
     client.println(" HTTP/1.1"); // Part of the GET request
     client.print("Host: "); // IMPORTANT: If you are using XAMPP you will have to find out the IP address of your computer and put it here (it is explained in previous article). If you have a web page, enter its address (ie.Host: "www.yourwebpage.com")
-    client.println(server);
+    client.println("192.168.1.100");
     client.println("Connection: close"); // Part of the GET request telling the server that we are over transmitting the message
     client.println(); // Empty line
     client.println(); // Empty line
     client.stop();    // Closing connection to server after writing
+
+    Serial.println("Client Stopped");
+
 
     // show status in serial monitor
     if (dosageStatus.equals("TAKEN")) {
@@ -650,3 +669,8 @@ void writeToDatabase(char server[], String patientUserName, String medicineName,
     }
   }// end if
 }
+
+
+
+
+
